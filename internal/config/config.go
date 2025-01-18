@@ -9,7 +9,10 @@ import (
 	activityRepository "fit-byte/internal/activity/repository"
 	activityUsecase "fit-byte/internal/activity/usecase"
 
-	"github.com/aws/aws-sdk-go-v2/service/s3"
+	fileHandler "fit-byte/internal/file/handler"
+	fileUsecase "fit-byte/internal/file/usecase"
+
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -21,7 +24,7 @@ type BootstrapConfig struct {
 	DB        *db.Postgres
 	Log       *logrus.Logger
 	Validator *validator.Validate
-	S3Client  *s3.Client
+	S3Client  *manager.Uploader
 }
 
 func Bootstrap(config *BootstrapConfig) {
@@ -29,6 +32,8 @@ func Bootstrap(config *BootstrapConfig) {
 	activityRepo := activityRepository.NewActivityRepository(config.DB.Pool)
 	activityUsecase := activityUsecase.NewActivityUseCase(*activityRepo)
 	activityHandler := activityHandler.NewActivityHandler(*activityUsecase, config.Validator)
+	fileUsecase := fileUsecase.NewFileUseCase(config.S3Client)
+	fileHandler := fileHandler.NewFileHandler(fileUsecase, config.Log)
 
 	// * Middleware
 	config.App.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
@@ -39,8 +44,8 @@ func Bootstrap(config *BootstrapConfig) {
 
 	routes := routes.RouteConfig{
 		App:             config.App,
-		S3Client:        config.S3Client,
 		ActivityHandler: activityHandler,
+		FileHandler:     fileHandler,
 	}
 
 	routes.SetupRoutes()
