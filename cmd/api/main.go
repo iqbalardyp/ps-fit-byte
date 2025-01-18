@@ -19,7 +19,7 @@ func main() {
 	log := config.NewLogger()
 	validator := config.NewValidator()
 	app := echo.New()
-	s3Client := config.NewS3Client()
+	s3Client := config.NewS3Uploader()
 	pg := config.NewDatabase(log)
 	defer pg.Pool.Close()
 

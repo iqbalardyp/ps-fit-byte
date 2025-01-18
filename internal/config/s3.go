@@ -7,10 +7,9 @@ import (
 
 	AWSConfig "github.com/aws/aws-sdk-go-v2/config"
 	AWSCredentials "github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
-
-type S3Client *s3.Client
 
 var (
 	AWS_S3_REGION      = os.Getenv("S3_REGION")
@@ -19,7 +18,7 @@ var (
 	AWS_S3_BUCKET_NAME = os.Getenv("S3_BUCKET_NAME")
 )
 
-func NewS3Client() *s3.Client {
+func NewS3Uploader() *manager.Uploader {
 	config, err := AWSConfig.LoadDefaultConfig(
 		context.TODO(),
 		AWSConfig.WithRegion(AWS_S3_REGION),
@@ -35,5 +34,6 @@ func NewS3Client() *s3.Client {
 	}
 
 	client := s3.NewFromConfig(config)
-	return client
+	uploader := manager.NewUploader(client)
+	return uploader
 }
