@@ -8,7 +8,7 @@ CREATE TYPE enum_activity_types as ENUM (
     'Dancing',
     'Hiking',
     'Running',
-    'HITT',
+    'HIIT',
     'JumpRope'
 );
 
@@ -16,10 +16,10 @@ CREATE TYPE enum_activity_types as ENUM (
 CREATE TABLE activities (
     id BIGSERIAL PRIMARY KEY,
     user_id BIGINT NOT NULL,
-    type enum_activity_types NOT NULL,
-    duration INTEGER NOT NULL,
-    calories_burned INTEGER NOT NULL,
-    done_at TIMESTAMPTZ,
+    activity_type enum_activity_types NOT NULL,
+    done_at TIMESTAMPTZ NOT NULL,
+    duration_in_minutes INT NOT NULL,                   
+    calories_burned INT NOT NULL, 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
