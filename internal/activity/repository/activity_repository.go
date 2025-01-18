@@ -58,7 +58,7 @@ func (r *ActivityRepository) CreateActivity(ctx context.Context, arg CreateActiv
 }
 
 const listActivities = `-- name: ListActivities :many
-SELECT id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at FROM activities
+SELECT id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at FROM activities
 WHERE ($3::enum_activity_types IS NULL OR activity_type = $3::enum_activity_types)
   AND ($4::timestamptz IS NULL OR done_at >= $4::timestamptz)
   AND ($5::timestamptz IS NULL OR done_at <= $5::timestamptz)
@@ -101,6 +101,7 @@ func (r *ActivityRepository) ListActivities(ctx context.Context, arg ListActivit
 		var i model.Activity
 		if err := rows.Scan(
 			&i.ID,
+			&i.UserId,
 			&i.ActivityType,
 			&i.DoneAt,
 			&i.DurationInMinutes,
