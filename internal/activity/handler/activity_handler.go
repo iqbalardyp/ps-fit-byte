@@ -14,6 +14,10 @@ import (
 	"github.com/pkg/errors"
 )
 
+const (
+	DEFAULT_LIMIT = 5
+)
+
 type ActivityHandler struct {
 	UseCase  usecase.ActivityUseCase
 	Validate *validator.Validate
@@ -35,7 +39,7 @@ func (c *ActivityHandler) GetActivity(ctx echo.Context) error {
 	}
 
 	if request.Limit == 0 {
-		request.Limit = 5
+		request.Limit = DEFAULT_LIMIT
 	}
 
 	if err := c.Validate.Struct(request); err != nil {
