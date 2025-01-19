@@ -6,6 +6,7 @@ import (
 	"fit-byte/internal/activity/dto"
 	"fit-byte/internal/activity/model"
 	"fit-byte/internal/activity/repository"
+	customErrors "fit-byte/pkg/custom-errors"
 
 	"github.com/pkg/errors"
 )
@@ -59,7 +60,7 @@ func calculateCalories(activityType model.ActivityTypeEnum, duration int) int {
 	return caloriesPerMinute * duration
 }
 
-func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userid int) (*model.Activity, error) {
+func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userId int) (*model.Activity, error) {
 
 	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
 	arg := repository.CreateActivityParams{
@@ -67,7 +68,7 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 		DoneAt:            request.DoneAt,
 		DurationInMinutes: request.DurationInMinutes,
 		CaloriesBurned:    caloriesBurned,
-		UserId:            userid,
+		UserId:            userId,
 	}
 
 	activity, err := c.activityRepo.CreateActivity(ctx, arg)
@@ -76,4 +77,50 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 	}
 
 	return &activity, nil
+}
+
+func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userId int, activityId int) (*model.Activity, error) {
+
+	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
+	arg := repository.UpdateActivityParams{
+		ActivityType:      request.ActivityType,
+		DoneAt:            request.DoneAt,
+		DurationInMinutes: request.DurationInMinutes,
+		CaloriesBurned:    caloriesBurned,
+		Id:                activityId,
+		UserId:            userId,
+	}
+
+	activity, err := c.activityRepo.UpdateActivity(ctx, arg)
+	if err != nil {
+		if errors.Is(err, customErrors.ErrNotFound) {
+			return nil, errors.Wrap(customErrors.ErrNotFound, "Activity not found")
+		}
+		return nil, errors.Wrap(err, "failed to update activity")
+	}
+
+	return &activity, nil
+}
+
+func (c *ActivityUseCase) DeleteActivity(ctx context.Context, userId int, activityId int) error {
+
+	arg := repository.GetAndDeleteActivityParams{
+		Id:     activityId,
+		UserId: userId,
+	}
+
+	_, err := c.activityRepo.GetActivity(ctx, arg)
+	if err != nil {
+		if errors.Is(err, customErrors.ErrNotFound) {
+			return errors.Wrap(customErrors.ErrNotFound, "Activity not found")
+		}
+		return errors.Wrap(err, "failed to get activity")
+	}
+
+	err = c.activityRepo.DeleteActivity(ctx, arg)
+	if err != nil {
+		return errors.Wrap(err, "failed to delete activity")
+	}
+
+	return nil
 }

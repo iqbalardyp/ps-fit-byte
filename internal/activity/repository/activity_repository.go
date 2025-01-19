@@ -25,7 +25,7 @@ INSERT INTO activities (
   user_id
 ) VALUES (
   $1, $2, $3, $4, $5
-) RETURNING id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at
+) RETURNING id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at
 `
 
 type CreateActivityParams struct {
@@ -47,6 +47,7 @@ func (r *ActivityRepository) CreateActivity(ctx context.Context, arg CreateActiv
 	var i model.Activity
 	err := row.Scan(
 		&i.ID,
+		&i.UserId,
 		&i.ActivityType,
 		&i.DoneAt,
 		&i.DurationInMinutes,
@@ -117,4 +118,89 @@ func (r *ActivityRepository) ListActivities(ctx context.Context, arg ListActivit
 		return nil, err
 	}
 	return items, nil
+}
+
+const getActivity = `-- name: GetActivity :one
+SELECT id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at FROM activities
+WHERE (id = $1::bigint)
+  AND (user_id = $2::bigint)
+LIMIT 1
+`
+
+type GetAndDeleteActivityParams struct {
+	Id     int
+	UserId int
+}
+
+func (r *ActivityRepository) GetActivity(ctx context.Context, arg GetAndDeleteActivityParams) (model.Activity, error) {
+	row := r.pool.QueryRow(ctx, getActivity, arg.Id, arg.UserId)
+	var i model.Activity
+	err := row.Scan(
+		&i.ID,
+		&i.UserId,
+		&i.ActivityType,
+		&i.DoneAt,
+		&i.DurationInMinutes,
+		&i.CaloriesBurned,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateActivity = `-- name: UpdateActivity :one
+UPDATE activities
+SET
+  activity_type = $1,
+  done_at = $2,
+  duration_in_minutes = $3,
+  calories_burned = $4
+WHERE
+  (id = $5::bigint)
+  AND (user_id = $6::bigint)
+RETURNING id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at
+`
+
+type UpdateActivityParams struct {
+	ActivityType      model.ActivityTypeEnum
+	DoneAt            time.Time
+	DurationInMinutes int
+	CaloriesBurned    int
+	Id                int
+	UserId            int
+}
+
+func (r *ActivityRepository) UpdateActivity(ctx context.Context, arg UpdateActivityParams) (model.Activity, error) {
+	row := r.pool.QueryRow(ctx, updateActivity,
+		arg.ActivityType,
+		arg.DoneAt,
+		arg.DurationInMinutes,
+		arg.CaloriesBurned,
+		arg.Id,
+		arg.UserId,
+	)
+	var i model.Activity
+	err := row.Scan(
+		&i.ID,
+		&i.UserId,
+		&i.ActivityType,
+		&i.DoneAt,
+		&i.DurationInMinutes,
+		&i.CaloriesBurned,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const deleteActivity = `-- name: DeleteActivity :exec
+DELETE FROM activities 
+WHERE
+  (id = $1::bigint)
+  AND (user_id = $2::bigint)
+`
+
+func (r *ActivityRepository) DeleteActivity(ctx context.Context, arg GetAndDeleteActivityParams) error {
+	_, err := r.pool.Exec(ctx, deleteActivity, arg.Id, arg.UserId)
+	return err
 }

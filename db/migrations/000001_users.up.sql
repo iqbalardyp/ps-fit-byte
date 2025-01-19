@@ -12,7 +12,7 @@ CREATE TABLE users (
     user_image_uri VARCHAR(255),
     weight INTEGER,
     height INTEGER,
+    weight_unit enum_weight_units,
     height_unit enum_height_units,
-    weight_unit enum_height_units,
     preference enum_preferences
 );
