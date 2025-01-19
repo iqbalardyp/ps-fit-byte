@@ -92,9 +92,9 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 	activityId := ctx.Param("activityId")
 
 	intValue, err := strconv.Atoi(activityId)
-
 	if err != nil {
 		// Handle error
+		err = errors.Wrap(customErrors.ErrNotFound, "activity id required")
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 	if activityId == "" {
@@ -122,7 +122,7 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 
 	response := converter.ToActivityResponse(*activity)
 
-	return ctx.JSON(http.StatusCreated, response)
+	return ctx.JSON(http.StatusOK, response)
 }
 
 func (c *ActivityHandler) DeleteActivity(ctx echo.Context) error {
@@ -130,7 +130,7 @@ func (c *ActivityHandler) DeleteActivity(ctx echo.Context) error {
 
 	intValue, err := strconv.Atoi(activityId)
 	if err != nil {
-		// Handle error
+		err = errors.Wrap(customErrors.ErrNotFound, "activity id required")
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 	if activityId == "" {
