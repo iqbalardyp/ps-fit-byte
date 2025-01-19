@@ -158,7 +158,7 @@ const queryUpdateActivity = `
 			NULLIF(t.duration, '')duration,
 			NULLIF(t.calories_burned, '')calories_burned,
 			NULLIF(t.done_at, '')done_at,
-			NULLIF(t.updated_at, '')done_at,
+			NULLIF(t.updated_at, '')updated_at
 			FROM (
 			VALUES (
 				@type,
@@ -179,14 +179,14 @@ const queryUpdateActivity = `
 	SET
 		type = COALESCE(payload.type, activities.type),
 		duration = COALESCE(payload.duration, activities.duration),
-		calories_burned = COALESCE(payload.calories_burned, activities.calories_burned)
-		done_at = COALESCE(payload.done_at, activites.done_at)
+		calories_burned = COALESCE(payload.calories_burned, activities.calories_burned),
+		done_at = COALESCE(payload.done_at, activites.done_at),
 		update_at = COALESCE(payload.updated_at, activities.updated_at)
 	FROM payload
 	WHERE
 		activities.id = @activitiesId
 	RETURNING
-		RETURNING id,
+		id,
 		activity_type,
 		done_at,
 		duration_in_minutes,

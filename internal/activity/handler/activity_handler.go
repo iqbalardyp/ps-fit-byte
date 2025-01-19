@@ -102,6 +102,11 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 
+	if err := ctx.Bind(request); err != nil {
+		err = errors.Wrap(customErrors.ErrBadRequest, err.Error())
+		return ctx.JSON(response.WriteErrorResponse(err))
+	}
+
 	if err := c.Validate.Struct(request); err != nil {
 		err = errors.Wrap(customErrors.ErrBadRequest, err.Error())
 		return ctx.JSON(response.WriteErrorResponse(err))
