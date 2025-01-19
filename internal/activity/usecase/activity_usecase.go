@@ -79,7 +79,7 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 	return &activity, nil
 }
 
-func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userId int)(*model.Activity, error){
+func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest,activityId int, userId int)(*model.Activity, error){
 	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
 	timeNow := time.Now()
 	arg := repository.PatchActivitiesParams{
@@ -88,7 +88,6 @@ func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.Creat
 		UpdatedAt: timeNow,
 		DurationInMinutes: request.DurationInMinutes,
 		CaloriesBurned: caloriesBurned,
-		ActivityId: request.ActivityId,
 		UserId: userId,
 	}
 

@@ -19,7 +19,6 @@ type CreateAndUpdateActivityRequest struct {
 	ActivityType      model.ActivityTypeEnum `json:"activityType" validate:"required,activity_type"`
 	DoneAt            time.Time              `json:"doneAt" validate:"required,time_validator"`
 	DurationInMinutes int                    `json:"durationInMinutes" validate:"required,min=1"`
-	ActivityId        int                    `json:"activityId"`
 }
 
 type GetActivityRequest struct {

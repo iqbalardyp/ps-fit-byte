@@ -86,9 +86,16 @@ func (c *ActivityHandler) CreateActivity(ctx echo.Context) error {
 }
 
 func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
+
 	var request = new(dto.CreateAndUpdateActivityRequest)
 	activityId := ctx.Param("activityId")
 
+	intValue, err := strconv.Atoi(activityId)
+
+	if err != nil {
+		// Handle error
+		return ctx.JSON(response.WriteErrorResponse(err))
+	}
 	if activityId == "" {
 		err := errors.Wrap(customErrors.ErrBadRequest, "activity id required")
 		return ctx.JSON(response.WriteErrorResponse(err))
@@ -101,7 +108,7 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 
 	// userData := ctx.Get("user").(*jwt.JwtClaim)
 
-	activity, err := c.UseCase.CreateActivity(ctx.Request().Context(), request, 1)
+	activity, err := c.UseCase.UpdateActivity(ctx.Request().Context(), request,intValue, 1)
 
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))
