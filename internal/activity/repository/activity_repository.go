@@ -154,18 +154,18 @@ const queryUpdateActivity = `
 	WITH
 	payload AS (
 		SELECT
-			NULLIF(t.type, '') type,
-			NULLIF(t.duration, '')duration,
-			NULLIF(t.calories_burned, '')calories_burned,
-			NULLIF(t.done_at, '')done_at,
-			NULLIF(t.updated_at, '')updated_at
-			FROM (
+			t.type,
+			t.duration,
+			t.calories_burned,
+			t.done_at,
+			t.updated_at
+		FROM (
 			VALUES (
-				@type,
-				@duration,
-				@calories_burned,
-				@done_at,
-				@updated_at
+				@type::enum_activity_types,
+				@duration::INT,
+				@calories_burned::INT,
+				@done_at::TIMESTAMPTZ,
+				@updated_at::TIMESTAMPTZ
 			)
 		) AS t(
 			type,
@@ -177,22 +177,23 @@ const queryUpdateActivity = `
 	)
 	UPDATE activities
 	SET
-		type = COALESCE(payload.type, activities.type),
-		duration = COALESCE(payload.duration, activities.duration),
+		activity_type = COALESCE(payload.type, activities.activity_type),
+		duration_in_minutes = COALESCE(payload.duration, activities.duration_in_minutes),
 		calories_burned = COALESCE(payload.calories_burned, activities.calories_burned),
-		done_at = COALESCE(payload.done_at, activites.done_at),
-		update_at = COALESCE(payload.updated_at, activities.updated_at)
+		done_at = COALESCE(payload.done_at, activities.done_at),
+		updated_at = COALESCE(payload.updated_at, activities.updated_at)
 	FROM payload
 	WHERE
 		activities.id = @activitiesId
 	RETURNING
-		id,
-		activity_type,
-		done_at,
-		duration_in_minutes,
-		calories_burned,
-		created_at,
-		updated_at;
+		activities.id,
+		activities.activity_type,
+		activities.done_at,
+		activities.duration_in_minutes,
+		activities.calories_burned,
+		activities.created_at,
+		activities.updated_at
+		;
 `
 
 type PatchActivitiesParams struct {
@@ -218,11 +219,13 @@ func (r *ActivityRepository) UpdateActivityRepo(ctx context.Context, arg PatchAc
 	}
 
 	err := r.pool.QueryRow(ctx, queryUpdateActivity, args).Scan(
+		&activity.ID,
 		&activity.ActivityType,
+		&activity.DoneAt,
 		&activity.DurationInMinutes,
 		&activity.CaloriesBurned,
-		&activity.DoneAt,
-		&activity.ID,
+		&activity.CreatedAt,
+		&activity.UpdatedAt,
 	)
 
 	if err != nil {
