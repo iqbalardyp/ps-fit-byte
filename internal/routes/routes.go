@@ -52,11 +52,11 @@ func (r *RouteConfig) setupActivityRoute(api *echo.Group, m echo.MiddlewareFunc)
 	user := api.Group("/activity", m)
 	user.GET("", r.ActivityHandler.GetActivity, m)
 	user.POST("", r.ActivityHandler.CreateActivity, m)
+	user.PATCH("/:activityId",r.ActivityHandler.UpdateActivity)
+	user.DELETE("/:activityId",r.ActivityHandler.UpdateActivity)
 }
 
 func (r *RouteConfig) setupUserRoutes(group *echo.Group, m echo.MiddlewareFunc) {
 	group.GET("/user", r.UserHandler.GetUser, m)
 	group.PATCH("/user", r.UserHandler.UpdateUser, m)
-	user.PATCH("/:activityId",r.ActivityHandler.UpdateActivity)
-	user.DELETE("/:activityId",r.ActivityHandler.UpdateActivity)
 }
