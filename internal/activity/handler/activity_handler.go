@@ -33,6 +33,8 @@ func NewActivityHandler(useCase usecase.ActivityUseCase, validate *validator.Val
 }
 
 func (c *ActivityHandler) GetActivity(ctx echo.Context) error {
+	userData := ctx.Get("user").(*jwt.JWTClaim)
+
 	var request = new(dto.GetActivityRequest)
 
 	if err := ctx.Bind(request); err != nil {
@@ -49,9 +51,7 @@ func (c *ActivityHandler) GetActivity(ctx echo.Context) error {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 
-	// userData := ctx.Get("user").(*jwt.JwtClaim)
-
-	activities, err := c.UseCase.GetActivity(ctx.Request().Context(), request, 1)
+	activities, err := c.UseCase.GetActivity(ctx.Request().Context(), request, userData.ID)
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
@@ -62,6 +62,8 @@ func (c *ActivityHandler) GetActivity(ctx echo.Context) error {
 }
 
 func (c *ActivityHandler) CreateActivity(ctx echo.Context) error {
+	userData := ctx.Get("user").(*jwt.JWTClaim)
+
 	var request = new(dto.CreateAndUpdateActivityRequest)
 
 	if err := ctx.Bind(request); err != nil {
@@ -74,9 +76,7 @@ func (c *ActivityHandler) CreateActivity(ctx echo.Context) error {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 
-	// userData := ctx.Get("user").(*jwt.JwtClaim)
-
-	activity, err := c.UseCase.CreateActivity(ctx.Request().Context(), request, 1)
+	activity, err := c.UseCase.CreateActivity(ctx.Request().Context(), request, userData.ID)
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
@@ -109,7 +109,7 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 
 	userData := ctx.Get("user").(*jwt.JWTClaim)
 
-	activity, err := c.UseCase.UpdateActivity(ctx.Request().Context(), request,intValue, userData.ID)
+	activity, err := c.UseCase.UpdateActivity(ctx.Request().Context(), request, intValue, userData.ID)
 
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))

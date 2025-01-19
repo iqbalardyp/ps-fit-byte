@@ -3,17 +3,19 @@ package converter
 import (
 	"fit-byte/internal/activity/dto"
 	"fit-byte/internal/activity/model"
+	"fit-byte/pkg/helper"
+	"strconv"
 )
 
 func ToActivityResponse(activity model.Activity) dto.ActivityResponse {
 	return dto.ActivityResponse{
-		ActivityId:        activity.ID,
+		ActivityId:        strconv.Itoa(activity.ID),
 		ActivityType:      activity.ActivityType,
-		DoneAt:            activity.DoneAt,
+		DoneAt:            helper.FormatTimeToUTC(activity.DoneAt),
 		DurationInMinutes: activity.DurationInMinutes,
 		CaloriesBurned:    activity.CaloriesBurned,
-		CreatedAt:         activity.CreatedAt,
-		UpdatedAt:         activity.UpdatedAt,
+		CreatedAt:         helper.FormatTimeToUTC(activity.CreatedAt),
+		UpdatedAt:         helper.FormatTimeToUTC(activity.UpdatedAt),
 	}
 }
 

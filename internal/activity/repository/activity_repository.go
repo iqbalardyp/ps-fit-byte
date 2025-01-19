@@ -27,7 +27,7 @@ INSERT INTO activities (
   user_id
 ) VALUES (
   $1, $2, $3, $4, $5
-) RETURNING id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at
+) RETURNING id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at
 `
 
 type CreateActivityParams struct {
@@ -49,6 +49,7 @@ func (r *ActivityRepository) CreateActivity(ctx context.Context, arg CreateActiv
 	var i model.Activity
 	err := row.Scan(
 		&i.ID,
+		&i.UserId,
 		&i.ActivityType,
 		&i.DoneAt,
 		&i.DurationInMinutes,
@@ -119,6 +120,34 @@ func (r *ActivityRepository) ListActivities(ctx context.Context, arg ListActivit
 		return nil, err
 	}
 	return items, nil
+}
+
+const getActivity = `-- name: GetActivity :one
+SELECT id, user_id, activity_type, done_at, duration_in_minutes, calories_burned, created_at, updated_at FROM activities
+WHERE (id = $1::bigint)
+  AND (user_id = $2::bigint)
+LIMIT 1
+`
+
+type GetAndDeleteActivityParams struct {
+	Id     int
+	UserId int
+}
+
+func (r *ActivityRepository) GetActivity(ctx context.Context, arg GetAndDeleteActivityParams) (model.Activity, error) {
+	row := r.pool.QueryRow(ctx, getActivity, arg.Id, arg.UserId)
+	var i model.Activity
+	err := row.Scan(
+		&i.ID,
+		&i.UserId,
+		&i.ActivityType,
+		&i.DoneAt,
+		&i.DurationInMinutes,
+		&i.CaloriesBurned,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const queryUpdateActivity = `

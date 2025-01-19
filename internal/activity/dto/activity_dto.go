@@ -6,13 +6,13 @@ import (
 )
 
 type ActivityResponse struct {
-	ActivityId        int                    `json:"activityId"`
+	ActivityId        string                 `json:"activityId"`
 	ActivityType      model.ActivityTypeEnum `json:"activityType"`
-	DoneAt            time.Time              `json:"doneAt"`
+	DoneAt            string                 `json:"doneAt"`
 	DurationInMinutes int                    `json:"durationInMinutes"`
 	CaloriesBurned    int                    `json:"caloriesBurned"`
-	CreatedAt         time.Time              `json:"createdAt"`
-	UpdatedAt         time.Time              `json:"updatedAt"`
+	CreatedAt         string                 `json:"createdAt"`
+	UpdatedAt         string                 `json:"updatedAt"`
 }
 
 type CreateAndUpdateActivityRequest struct {
@@ -22,11 +22,11 @@ type CreateAndUpdateActivityRequest struct {
 }
 
 type GetActivityRequest struct {
-	Limit             int                     `json:"limit" validate:"omitempty,min=0"`
-	Offset            int                     `json:"offset" validate:"omitempty,min=0"`
-	ActivityType      *model.ActivityTypeEnum `json:"activityType" validate:"omitempty,activity_type"`
-	DoneAtFrom        *time.Time              `json:"doneAtFrom" validate:"omitempty,time_validator"`
-	DoneAtTo          *time.Time              `json:"doneAtTo" validate:"omitempty,time_validator"`
-	CaloriesBurnedMin *int                    `json:"caloriesBurnedMin" validate:"omitempty,min=0"`
-	CaloriesBurnedMax *int                    `json:"caloriesBurnedMax" validate:"omitempty,min=0"`
+	Limit             int                     `query:"limit" validate:"omitempty,min=0"`
+	Offset            int                     `query:"offset" validate:"omitempty,min=0"`
+	ActivityType      *model.ActivityTypeEnum `query:"activityType" validate:"omitempty,activity_type"`
+	DoneAtFrom        *time.Time              `query:"doneAtFrom" validate:"omitempty,time_validator"`
+	DoneAtTo          *time.Time              `query:"doneAtTo" validate:"omitempty,time_validator"`
+	CaloriesBurnedMin *int                    `query:"caloriesBurnedMin" validate:"omitempty,min=0"`
+	CaloriesBurnedMax *int                    `query:"caloriesBurnedMax" validate:"omitempty,min=0"`
 }

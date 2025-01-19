@@ -60,7 +60,7 @@ func calculateCalories(activityType model.ActivityTypeEnum, duration int) int {
 	return caloriesPerMinute * duration
 }
 
-func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userid int) (*model.Activity, error) {
+func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userId int) (*model.Activity, error) {
 
 	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
 	arg := repository.CreateActivityParams{
@@ -68,7 +68,7 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 		DoneAt:            request.DoneAt,
 		DurationInMinutes: request.DurationInMinutes,
 		CaloriesBurned:    caloriesBurned,
-		UserId:            userid,
+		UserId:            userId,
 	}
 
 	activity, err := c.activityRepo.CreateActivity(ctx, arg)
@@ -79,32 +79,32 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 	return &activity, nil
 }
 
-func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest,activityId int, userId int)(*model.Activity, error){
+func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, activityId int, userId int) (*model.Activity, error) {
 	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
 	timeNow := time.Now()
 	arg := repository.PatchActivitiesParams{
-		ActivityType: request.ActivityType,
-		DoneAt: request.DoneAt,
-		UpdatedAt: timeNow,
+		ActivityType:      request.ActivityType,
+		DoneAt:            request.DoneAt,
+		UpdatedAt:         timeNow,
 		DurationInMinutes: request.DurationInMinutes,
-		CaloriesBurned: caloriesBurned,
-		ActivityId: activityId,
-		UserId: userId,
+		CaloriesBurned:    caloriesBurned,
+		ActivityId:        activityId,
+		UserId:            userId,
 	}
 
-	activity, err := c.activityRepo.UpdateActivityRepo(ctx,arg)
+	activity, err := c.activityRepo.UpdateActivityRepo(ctx, arg)
 	if err != nil {
-		return nil, errors.Wrap(err,"failed to update Activity")
+		return nil, errors.Wrap(err, "failed to update Activity")
 	}
 
-	return activity,nil
+	return activity, nil
 }
 
-func (c *ActivityUseCase) DeleteActivity(ctx context.Context, activityId int , userId int) error{
+func (c *ActivityUseCase) DeleteActivity(ctx context.Context, activityId int, userId int) error {
 
 	arg := repository.DeleteActivitiesParams{
 		ActivityId: activityId,
-		UserId: userId,
+		UserId:     userId,
 	}
 
 	return c.activityRepo.DeleteActivity(ctx, arg)
