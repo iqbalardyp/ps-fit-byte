@@ -2,15 +2,15 @@ package main
 
 import (
 	"fit-byte/internal/config"
+	"fit-byte/pkg/dotenv"
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 )
 
 func main() {
-	err := godotenv.Load()
+	env, err := dotenv.LoadEnv()
 	if err != nil {
 		log.Fatal("failed to load env", err.Error())
 		return
@@ -19,16 +19,17 @@ func main() {
 	log := config.NewLogger()
 	validator := config.NewValidator()
 	app := echo.New()
-	s3Client := config.NewS3Client()
+	s3Uploader := config.NewS3Uploader(env)
 	pg := config.NewDatabase(log)
 	defer pg.Pool.Close()
 
 	config.Bootstrap(&config.BootstrapConfig{
-		App:       app,
-		DB:        pg,
-		Log:       log,
-		Validator: validator,
-		S3Client:  s3Client,
+		App:        app,
+		DB:         pg,
+		Log:        log,
+		Validator:  validator,
+		S3Uploader: s3Uploader,
+		Env:        env,
 	})
 
 	PORT := os.Getenv("PORT")

@@ -8,11 +8,11 @@ CREATE TABLE users (
     id BIGSERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     hashed_password VARCHAR(255) NOT NULL,
-    username VARCHAR(255),
-    user_image_uri VARCHAR(255),
+    name VARCHAR(255),
+    image_uri VARCHAR(255),
     weight INTEGER,
     height INTEGER,
     height_unit enum_height_units,
-    weight_unit enum_height_units,
+    weight_unit enum_weight_units,
     preference enum_preferences
 );
