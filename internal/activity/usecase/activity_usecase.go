@@ -88,6 +88,7 @@ func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.Creat
 		UpdatedAt: timeNow,
 		DurationInMinutes: request.DurationInMinutes,
 		CaloriesBurned: caloriesBurned,
+		ActivityId: activityId,
 		UserId: userId,
 	}
 

@@ -8,6 +8,7 @@ import (
 	"fit-byte/internal/activity/model/converter"
 	"fit-byte/internal/activity/usecase"
 	customErrors "fit-byte/pkg/custom-errors"
+	"fit-byte/pkg/jwt"
 	"fit-byte/pkg/response"
 
 	"github.com/go-playground/validator/v10"
@@ -106,9 +107,9 @@ func (c *ActivityHandler) UpdateActivity(ctx echo.Context) error {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 
-	// userData := ctx.Get("user").(*jwt.JwtClaim)
+	userData := ctx.Get("user").(*jwt.JWTClaim)
 
-	activity, err := c.UseCase.UpdateActivity(ctx.Request().Context(), request,intValue, 1)
+	activity, err := c.UseCase.UpdateActivity(ctx.Request().Context(), request,intValue, userData.ID)
 
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))
@@ -132,8 +133,8 @@ func (c *ActivityHandler) DeleteActivity(ctx echo.Context) error {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
 
-	// userData := ctx.Get("user").(*jwt.JwtClaim)
-	err = c.UseCase.DeleteActivity(ctx.Request().Context(), intValue, 1)
+	userData := ctx.Get("user").(*jwt.JWTClaim)
+	err = c.UseCase.DeleteActivity(ctx.Request().Context(), intValue, userData.ID)
 	if err != nil {
 		return ctx.JSON(response.WriteErrorResponse(err))
 	}
