@@ -41,4 +41,6 @@ func (r *RouteConfig) setupActivityRoute(api *echo.Group) {
 	user := api.Group("/activity")
 	user.GET("", r.ActivityHandler.GetActivity)
 	user.POST("", r.ActivityHandler.CreateActivity)
+	user.PATCH("/:activityId",r.ActivityHandler.UpdateActivity)
+	user.DELETE("/:activityId",r.ActivityHandler.UpdateActivity)
 }
