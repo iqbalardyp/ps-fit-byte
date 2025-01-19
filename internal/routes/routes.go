@@ -53,7 +53,7 @@ func (r *RouteConfig) setupActivityRoute(api *echo.Group, m echo.MiddlewareFunc)
 	user.GET("", r.ActivityHandler.GetActivity, m)
 	user.POST("", r.ActivityHandler.CreateActivity, m)
 	user.PATCH("/:activityId",r.ActivityHandler.UpdateActivity,m)
-	user.DELETE("/:activityId",r.ActivityHandler.UpdateActivity,m)
+	user.DELETE("/:activityId",r.ActivityHandler.DeleteActivity,m)
 }
 
 func (r *RouteConfig) setupUserRoutes(group *echo.Group, m echo.MiddlewareFunc) {
