@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"fit-byte/internal/activity/dto"
 	"fit-byte/internal/activity/model"
@@ -80,9 +81,11 @@ func (c *ActivityUseCase) CreateActivity(ctx context.Context, request *dto.Creat
 
 func (c *ActivityUseCase) UpdateActivity(ctx context.Context, request *dto.CreateAndUpdateActivityRequest, userId int)(*model.Activity, error){
 	caloriesBurned := calculateCalories(request.ActivityType, request.DurationInMinutes)
+	timeNow := time.Now()
 	arg := repository.PatchActivitiesParams{
 		ActivityType: request.ActivityType,
 		DoneAt: request.DoneAt,
+		UpdatedAt: timeNow,
 		DurationInMinutes: request.DurationInMinutes,
 		CaloriesBurned: caloriesBurned,
 		ActivityId: request.ActivityId,
@@ -103,6 +106,6 @@ func (c *ActivityUseCase) DeleteActivity(ctx context.Context, activityId int , u
 		ActivityId: activityId,
 		UserId: userId,
 	}
-	
+
 	return c.activityRepo.DeleteActivity(ctx, arg)
 }

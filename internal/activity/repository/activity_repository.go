@@ -129,18 +129,21 @@ const queryUpdateActivity = `
 			NULLIF(t.duration, '')duration,
 			NULLIF(t.calories_burned, '')calories_burned,
 			NULLIF(t.done_at, '')done_at,
+			NULLIF(t.updated_at, '')done_at,
 			FROM (
 			VALUES (
 				@type,
 				@duration,
 				@calories_burned,
-				@done_at
+				@done_at,
+				@updated_at
 			)
 		) AS t(
 			type,
 			duration,
 			calories_burned,
-			done_at
+			done_at,
+			updated_at
 		)
 	)
 	UPDATE activities
@@ -149,6 +152,7 @@ const queryUpdateActivity = `
 		duration = COALESCE(payload.duration, activities.duration),
 		calories_burned = COALESCE(payload.calories_burned, activities.calories_burned)
 		done_at = COALESCE(payload.done_at, activites.done_at)
+		update_at = COALESCE(payload.updated_at, activities.updated_at)
 	FROM payload
 	WHERE
 		activities.id = @activitiesId
@@ -165,6 +169,7 @@ const queryUpdateActivity = `
 type PatchActivitiesParams struct {
 	ActivityType      model.ActivityTypeEnum
 	DoneAt            time.Time
+	UpdatedAt         time.Time
 	DurationInMinutes int
 	CaloriesBurned    int
 	ActivityId        int
@@ -179,6 +184,7 @@ func (r *ActivityRepository) UpdateActivityRepo(ctx context.Context, arg PatchAc
 		"duration":        arg.DurationInMinutes,
 		"calories_burned": arg.CaloriesBurned,
 		"done_at":         arg.DoneAt,
+		"updated_at":      arg.UpdatedAt,
 		"activitiesId":    arg.ActivityId,
 	}
 
@@ -206,7 +212,7 @@ type DeleteActivitiesParams struct {
 	UserId     int
 }
 
-func (r *ActivityRepository) DeleteActivity(ctx context.Context, arg DeleteActivitiesParams)error{
+func (r *ActivityRepository) DeleteActivity(ctx context.Context, arg DeleteActivitiesParams) error {
 	args := pgx.NamedArgs{
 		"user_id": arg.UserId,
 		"id":      arg.ActivityId,
