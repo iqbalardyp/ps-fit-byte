@@ -4,14 +4,17 @@ import (
 	"fit-byte/pkg/response"
 	"net/http"
 
+	activityHandler "fit-byte/internal/activity/handler"
+
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 
 	"github.com/labstack/echo/v4"
 )
 
 type RouteConfig struct {
-	App      *echo.Echo
-	S3Client *s3.Client
+	App             *echo.Echo
+	S3Client        *s3.Client
+	ActivityHandler *activityHandler.ActivityHandler
 }
 
 func (r *RouteConfig) SetupRoutes() {
@@ -28,4 +31,14 @@ func (r *RouteConfig) setupPublicRoutes() {
 	})
 }
 func (r *RouteConfig) setupAuthRoutes() {
+	v1 := r.App.Group("/v1")
+
+	r.setupActivityRoute(v1)
+}
+
+func (r *RouteConfig) setupActivityRoute(api *echo.Group) {
+	// user := api.Group("/activity", r.AuthMiddleware)
+	user := api.Group("/activity")
+	user.GET("", r.ActivityHandler.GetActivity)
+	user.POST("", r.ActivityHandler.CreateActivity)
 }

@@ -5,6 +5,10 @@ import (
 	"fit-byte/internal/routes"
 	"time"
 
+	activityHandler "fit-byte/internal/activity/handler"
+	activityRepository "fit-byte/internal/activity/repository"
+	activityUsecase "fit-byte/internal/activity/usecase"
+
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -21,6 +25,11 @@ type BootstrapConfig struct {
 }
 
 func Bootstrap(config *BootstrapConfig) {
+	//activity
+	activityRepo := activityRepository.NewActivityRepository(config.DB.Pool)
+	activityUsecase := activityUsecase.NewActivityUseCase(*activityRepo)
+	activityHandler := activityHandler.NewActivityHandler(*activityUsecase, config.Validator)
+
 	// * Middleware
 	config.App.Use(middleware.TimeoutWithConfig(middleware.TimeoutConfig{
 		Skipper:      middleware.DefaultSkipper,
@@ -29,8 +38,9 @@ func Bootstrap(config *BootstrapConfig) {
 	}))
 
 	routes := routes.RouteConfig{
-		App:      config.App,
-		S3Client: config.S3Client,
+		App:             config.App,
+		S3Client:        config.S3Client,
+		ActivityHandler: activityHandler,
 	}
 
 	routes.SetupRoutes()
