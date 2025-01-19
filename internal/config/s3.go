@@ -2,15 +2,17 @@ package config
 
 import (
 	"context"
+	"fit-byte/pkg/dotenv"
 	"log"
 	"os"
 
 	AWSConfig "github.com/aws/aws-sdk-go-v2/config"
 	AWSCredentials "github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/feature/s3/manager"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 )
 
-type S3Client *s3.Client
+type S3Uploader *manager.Uploader
 
 var (
 	AWS_S3_REGION      = os.Getenv("S3_REGION")
@@ -19,14 +21,14 @@ var (
 	AWS_S3_BUCKET_NAME = os.Getenv("S3_BUCKET_NAME")
 )
 
-func NewS3Client() *s3.Client {
+func NewS3Uploader(env *dotenv.Env) *manager.Uploader {
 	config, err := AWSConfig.LoadDefaultConfig(
 		context.TODO(),
-		AWSConfig.WithRegion(AWS_S3_REGION),
+		AWSConfig.WithRegion(env.AWS_S3_REGION),
 		AWSConfig.WithCredentialsProvider(
 			AWSCredentials.NewStaticCredentialsProvider(
-				AWS_S3_ID,
-				AWS_S3_SECRET_KEY,
+				env.AWS_S3_ID,
+				env.AWS_S3_SECRET_KEY,
 				""),
 		),
 	)
@@ -35,5 +37,10 @@ func NewS3Client() *s3.Client {
 	}
 
 	client := s3.NewFromConfig(config)
-	return client
+	uploader := manager.NewUploader(client, func(u *manager.Uploader) {
+		u.PartSize = 5 * 1024 * 1024 // min size from aws
+		u.Concurrency = 2            // vCPU max
+		u.LeavePartsOnError = false
+	})
+	return uploader
 }
